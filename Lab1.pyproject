@@ -2,6 +2,7 @@
     "files": [
         "widget.py",
         "form.ui",
-        "text_edit_logger.py"
+        "text_edit_logger.py",
+        "packet.py"
     ]
 }
