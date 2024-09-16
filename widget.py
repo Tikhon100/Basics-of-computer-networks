@@ -9,7 +9,7 @@ from ui_form import Ui_Widget
 from text_edit_logger import QTextEditLogger
 
 import logging
-
+# this is sparta
 class Widget(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
