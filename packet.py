@@ -1,6 +1,6 @@
 
 class Packet:
-    def __init__(self, flag, destination_address, source_address, data_before_stuffing, fcs = 0):
+    def __init__(self, flag, destination_address, source_address, data_before_stuffing, fcs):
         self.flag = flag
         self.destination_address = destination_address
         self.source_address = source_address
@@ -73,37 +73,7 @@ class Packet:
 
         return stuffed_bytes
 
-    def _perform_unstuffing(self, data):
-            # Преобразуем байты в строку битов
-        bit_string = ''.join(format(byte, '08b') for byte in data)
 
-        unstuffed_bits = ''
-        count_ones = 0
-
-        i = 0
-        while i < len(bit_string):
-            bit = bit_string[i]
-            unstuffed_bits += bit
-            if bit == '1':
-                count_ones += 1
-                if count_ones == 5 and i + 1 < len(bit_string) and bit_string[i+1] == '0':
-                    i += 1  # Пропускаем следующий бит (удаляем вставленный ноль)
-                    count_ones = 0
-            else:
-                count_ones = 0
-            i += 1
-
-            # Удаляем добавленные нули справа
-        unstuffed_bits = unstuffed_bits.rstrip('0')
-
-            # Дополняем строку нулями справа до кратности 8, если необходимо
-        while len(unstuffed_bits) % 8 != 0:
-            unstuffed_bits += '0'
-
-            # Преобразуем обратно в байты
-        unstuffed_bytes = bytes(int(unstuffed_bits[i:i+8], 2) for i in range(0, len(unstuffed_bits), 8))
-
-        return unstuffed_bytes
 
     @property
     def data_after_stuffing(self):
