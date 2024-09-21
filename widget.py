@@ -7,7 +7,7 @@ from PySide6.QtWidgets import QApplication, QWidget
 from PySide6.QtCore import Slot
 from ui_form import Ui_Widget
 from text_edit_logger import QTextEditLogger
-
+import random
 import logging
 
 from typing import List
@@ -90,44 +90,26 @@ class Widget(QWidget):
             #sent_data_length = len(data_to_send)
             self.ui.inputTextEdit.clear()
             for packet1 in packets:
-                str3 = ','.join(str(b) for b in packet1.data_after_stuffing)
+                packet_data = packet1.data_after_stuffing
+                fcs = self.create_fcs(packet_data)
+                test_fcs = self.create_fcs(packet_data)
+
+                if self.ui.checkBox.isChecked():
+                    packet_data = self.emulate_errors(packet_data)
+
+                str3 = ','.join(str(b) for b in packet_data)
                 char_list = [chr(int(b)) for b in str3.split(',')]
                 result_string = ''.join(char_list)
 
-                #fcs = self.create_hamming_fcs(packet1.data_after_stuffing)
-                #self.check_and_correct_hamming(packet1.data_after_stuffing, fcs)
-                packet_data = packet1.data_after_stuffing
-                print(f"Оригинальные данные: {packet_data}")
 
-                fcs = self.create_fcs(packet_data)
-                print(f"Оригинальный FCS: {fcs}")
+                self.check_and_correct_hamming(packet_data, test_fcs)
 
-                print("\nСлучай 1: Без ошибок")
-                result = self.check_and_correct_hamming(packet_data, fcs)
-                print(f"Результат: {result}")
-                print(f"Совпадают с оригиналом: {result == packet_data}")
-
-                print("\nСлучай 2: Одиночная ошибка")
-                single_error_data = self.simulate_errors(packet_data, [15])  # Ошибка в 15-м бите
-                corrected_data = self.check_and_correct_hamming(single_error_data, fcs)
-                if corrected_data:
-                    print(f"Исправленные данные: {corrected_data}")
-                    print(f"Совпадают с оригиналом: {corrected_data == packet_data}")
-
-                print("\nСлучай 3: Двойная ошибка")
-                double_error_data = self.simulate_errors(packet_data, [15, 30])  # Ошибки в 15-м и 30-м битах
-                result = self.check_and_correct_hamming(double_error_data, fcs)
-                if result:
-                    print(f"Результат: {result}")
-                print(f"FCS (строка): {fcs}")
-
-                data_to_send = f"{packet1.flag}{packet1.destination_address}{packet1.source_address}~{result_string}~{packet1.fcs}".encode("latin-1")
+                data_to_send = f"{packet1.flag}{packet1.destination_address}{packet1.source_address}~{result_string}~{fcs}".encode("latin-1")
 
                 for byte in data_to_send:
                     ser1.write(bytes([byte]))
 
             self.ui.outputTextEdit.clear()
-            self.ui.statusTextEdit.clear()
 
             self.receive_data(ser2)
 
@@ -147,12 +129,29 @@ class Widget(QWidget):
         real_port = f"/tmp/ttyV{ttyv_number}"
             # Если это нечетный COM-порт, увеличиваем номер ttyV на 1
         return real_port
+
+    def emulate_errors(self, data):
+        random_int = random.randint(0, 100)
+        print(random_int)
+
+        if random_int <= 60:
+            self.ui.statusTextEdit.clear()
+            data = self.simulate_errors(data, [random.randint(0, len(data) - 1)])
+            self.ui.statusTextEdit.append("One bit was changed")
+        elif 60 < random_int < 85:
+            if len(data)>1:
+                self.ui.statusTextEdit.clear()
+                data = self.simulate_errors(data, [random.randint(0, len(data) - 1), random.randint(0, len(data) - 1)])
+                self.ui.statusTextEdit.append("Two bits were changed")
+        return data
+
     def simulate_errors(self, data, error_positions):
         data_bits = list(''.join(format(byte, '08b') for byte in data))
         for pos in error_positions:
             if pos <= len(data_bits):
                 data_bits[pos-1] = '1' if data_bits[pos-1] == '0' else '0'
         return bytes(int(''.join(data_bits[i:i+8]), 2) for i in range(0, len(data_bits), 8))
+
     def perform_unstuffing(self, data):
                 # Преобразуем байты в строку битов
         bit_string = ''.join(format(byte, '08b') for byte in data)
@@ -223,6 +222,7 @@ class Widget(QWidget):
         return result
 
 
+
     def receive_data(self, ser2):
             received_packets = []
 
@@ -254,8 +254,7 @@ class Widget(QWidget):
                         break
                     data.append(byte[0])
 
-                # Считываем FCS (1 байт)
-                fcs = ser2.read(1)
+                fcs = ser2.read(8)
                 if not fcs:
                     return received_packets  # Неожиданный конец данных
 
@@ -266,19 +265,21 @@ class Widget(QWidget):
                     self.ui.statusTextEdit.append(f"Flag: {flag.decode()}")
                     self.ui.statusTextEdit.append(f"Destination: {dest_addr.decode()}")
                     self.ui.statusTextEdit.append(f"Source: {src_addr.decode()}")
-                    self.ui.statusTextEdit.append(f"FCS: {fcs.decode()}")
+                    self.ui.statusTextEdit.append(f"FCS(rec): {fcs.decode()} FCS:(calc): {self.create_fcs(data)}")
 
                     # Выполняем дестаффинг данных
                     unstuffed_data = self.perform_unstuffing(data)
                     self.ui.statusTextEdit.append(f"Data (unstuffed): {' '.join(format(b, '08b') for b in unstuffed_data)}")
                     self.ui.statusTextEdit.append(f"Data size (unstuffed): {len(unstuffed_data)} bytes")
-                    #self.ui.statusTextEdit.append(f"Data (stuffed)  : {' '.join(format(b, '08b') for b in data)}")
                     str = ' '.join(format(b, '08b') for b in data)
                     formatted_string = self.insert_brackets(str)
                     self.ui.statusTextEdit.append(f"Data (stuffed)  : {formatted_string}")
 
                     packet1 = Packet(flag.decode("latin-1"), dest_addr.decode("latin-1"), src_addr.decode("latin-1"), bytes(unstuffed_data), "0")
                     packet1.fcs = fcs.hex()
+                    if packet1.fcs != self.create_fcs(data):
+                        self.check_and_correct_hamming(data, packet1.fcs)
+
                     # Преобразуем байты обратно в текст
                     try:
                         original_text = unstuffed_data.decode('latin-1')
@@ -294,17 +295,18 @@ class Widget(QWidget):
                 r = 0
                 while 2**r < data_size + r + 1:
                     r += 1
-                return r + 1  # Добавляем еще один бит для общей четности
+                return max(r + 1, 8)  # Минимальный размер FCS теперь 8
 
     def create_fcs(self, data):
                 self.data_size = len(data) * 8
                 self.fcs_size = self.calculate_fcs_size(self.data_size)
+                self.actual_fcs_size = min(self.fcs_size, 8)
 
                 data_bits = ''.join(format(byte, '08b') for byte in data)
-                fcs = ['0'] * self.fcs_size
+                fcs = ['0'] * 8
 
                 overall_parity = 0
-                for i in range(self.fcs_size - 1):
+                for i in range(self.actual_fcs_size - 1):
                     parity = 0
                     for j in range(self.data_size):
                         if (j + 1) & (1 << i):
@@ -315,7 +317,11 @@ class Widget(QWidget):
                 for bit in data_bits:
                     overall_parity ^= int(bit)
 
-                fcs[-1] = str(overall_parity)
+                fcs[self.actual_fcs_size - 1] = str(overall_parity)
+
+                # Заполняем оставшиеся биты нулями, если actual_fcs_size < 8
+                for i in range(self.actual_fcs_size, 8):
+                    fcs[i] = '0'
 
                 return ''.join(fcs)
 
@@ -323,10 +329,10 @@ class Widget(QWidget):
                 data_bits = ''.join(format(byte, '08b') for byte in data)
                 syndrome = 0
 
-                overall_parity = int(fcs[-1])
+                overall_parity = int(fcs[self.actual_fcs_size - 1])
                 calculated_overall_parity = 0
 
-                for i in range(self.fcs_size - 1):
+                for i in range(self.actual_fcs_size - 1):
                     parity = 0
                     for j in range(self.data_size):
                         if (j + 1) & (1 << i):

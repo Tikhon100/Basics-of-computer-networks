@@ -15,8 +15,8 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QComboBox, QLabel, QPushButton,
-    QSizePolicy, QTextEdit, QWidget)
+from PySide6.QtWidgets import (QApplication, QCheckBox, QComboBox, QLabel,
+    QPushButton, QSizePolicy, QTextEdit, QWidget)
 
 class Ui_Widget(object):
     def setupUi(self, Widget):
@@ -25,20 +25,20 @@ class Ui_Widget(object):
         Widget.resize(836, 712)
         self.comboBox = QComboBox(Widget)
         self.comboBox.setObjectName(u"comboBox")
-        self.comboBox.setGeometry(QRect(200, 130, 161, 23))
+        self.comboBox.setGeometry(QRect(130, 130, 131, 23))
         self.label = QLabel(Widget)
         self.label.setObjectName(u"label")
-        self.label.setGeometry(QRect(90, 130, 161, 21))
+        self.label.setGeometry(QRect(20, 130, 161, 21))
         font = QFont()
         font.setPointSize(12)
         self.label.setFont(font)
         self.label_2 = QLabel(Widget)
         self.label_2.setObjectName(u"label_2")
-        self.label_2.setGeometry(QRect(450, 130, 161, 21))
+        self.label_2.setGeometry(QRect(320, 130, 161, 21))
         self.label_2.setFont(font)
         self.comboBox_2 = QComboBox(Widget)
         self.comboBox_2.setObjectName(u"comboBox_2")
-        self.comboBox_2.setGeometry(QRect(570, 130, 161, 23))
+        self.comboBox_2.setGeometry(QRect(440, 130, 131, 23))
         self.inputTextEdit = QTextEdit(Widget)
         self.inputTextEdit.setObjectName(u"inputTextEdit")
         self.inputTextEdit.setGeometry(QRect(20, 50, 791, 70))
@@ -72,6 +72,13 @@ class Ui_Widget(object):
         self.statusTextEdit.setObjectName(u"statusTextEdit")
         self.statusTextEdit.setGeometry(QRect(20, 420, 791, 261))
         self.statusTextEdit.setFont(font2)
+        self.label_6 = QLabel(Widget)
+        self.label_6.setObjectName(u"label_6")
+        self.label_6.setGeometry(QRect(640, 130, 161, 21))
+        self.label_6.setFont(font)
+        self.checkBox = QCheckBox(Widget)
+        self.checkBox.setObjectName(u"checkBox")
+        self.checkBox.setGeometry(QRect(770, 130, 21, 21))
 
         self.retranslateUi(Widget)
         self.pushButton.clicked.connect(Widget.send_button_click)
@@ -87,5 +94,7 @@ class Ui_Widget(object):
         self.label_4.setText(QCoreApplication.translate("Widget", u"Output window:", None))
         self.pushButton.setText(QCoreApplication.translate("Widget", u"Send", None))
         self.label_5.setText(QCoreApplication.translate("Widget", u"Status window:", None))
+        self.label_6.setText(QCoreApplication.translate("Widget", u"Emulate errors:", None))
+        self.checkBox.setText("")
     # retranslateUi
 
