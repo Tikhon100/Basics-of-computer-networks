@@ -92,18 +92,32 @@ class Widget(QWidget):
             for packet1 in packets:
                 packet_data = packet1.data_after_stuffing
                 fcs = self.create_fcs(packet_data)
-                test_fcs = self.create_fcs(packet_data)
-
+                self.ui.statusTextEdit.clear()
                 if self.ui.checkBox.isChecked():
                     packet_data = self.emulate_errors(packet_data)
+
+                """print(f"Оригинальные данные: {packet_data}")
+                print(f"Оригинальный FCS: {fcs}")
+
+                print("\nСлучай 1: Без ошибок")
+                result = self.check_and_correct_hamming(packet_data, fcs)
+                print(f"Результат: {result}")
+                print(f"Совпадают с оригиналом: {result == packet_data}")
+
+                print("\nСлучай 2: Одиночная ошибка")
+                single_error_data = self.simulate_errors(packet_data, [random.randint(1,len(packet_data))])  # Ошибка в 15-м бите
+                print(single_error_data)
+                corrected_data = self.check_and_correct_hamming(single_error_data, fcs)
+                if corrected_data:
+                    print(f"Исправленные данные: {corrected_data}")
+                    print(f"Совпадают с оригиналом: {corrected_data == packet_data}")"""
+
 
                 str3 = ','.join(str(b) for b in packet_data)
                 char_list = [chr(int(b)) for b in str3.split(',')]
                 result_string = ''.join(char_list)
 
-
-                self.check_and_correct_hamming(packet_data, test_fcs)
-
+                print(f"sended {result_string}")
                 data_to_send = f"{packet1.flag}{packet1.destination_address}{packet1.source_address}~{result_string}~{fcs}".encode("latin-1")
 
                 for byte in data_to_send:
@@ -135,13 +149,12 @@ class Widget(QWidget):
         print(random_int)
 
         if random_int <= 60:
-            self.ui.statusTextEdit.clear()
-            data = self.simulate_errors(data, [random.randint(0, len(data) - 1)])
-            self.ui.statusTextEdit.append("One bit was changed")
-        elif 60 < random_int < 85:
             if len(data)>1:
-                self.ui.statusTextEdit.clear()
-                data = self.simulate_errors(data, [random.randint(0, len(data) - 1), random.randint(0, len(data) - 1)])
+                data = self.simulate_errors(data, [15])
+                self.ui.statusTextEdit.append("One bit was changed")
+        elif 60 < random_int < 85:
+            if len(data)>4:
+                data = self.simulate_errors(data, [15,30])
                 self.ui.statusTextEdit.append("Two bits were changed")
         return data
 
@@ -267,6 +280,10 @@ class Widget(QWidget):
                     self.ui.statusTextEdit.append(f"Source: {src_addr.decode()}")
                     self.ui.statusTextEdit.append(f"FCS(rec): {fcs.decode()} FCS:(calc): {self.create_fcs(data)}")
 
+                    if fcs.decode() != self.create_fcs(data):
+                        self.ui.statusTextEdit.append(f"Data with error: {self.perform_unstuffing(data)}")
+                        data = self.check_and_correct_hamming(data, fcs.decode())
+
                     # Выполняем дестаффинг данных
                     unstuffed_data = self.perform_unstuffing(data)
                     self.ui.statusTextEdit.append(f"Data (unstuffed): {' '.join(format(b, '08b') for b in unstuffed_data)}")
@@ -277,8 +294,8 @@ class Widget(QWidget):
 
                     packet1 = Packet(flag.decode("latin-1"), dest_addr.decode("latin-1"), src_addr.decode("latin-1"), bytes(unstuffed_data), "0")
                     packet1.fcs = fcs.hex()
-                    if packet1.fcs != self.create_fcs(data):
-                        self.check_and_correct_hamming(data, packet1.fcs)
+
+
 
                     # Преобразуем байты обратно в текст
                     try:
@@ -345,10 +362,10 @@ class Widget(QWidget):
                     calculated_overall_parity ^= int(bit)
 
                 if syndrome == 0 and calculated_overall_parity == overall_parity:
-                    print("Ошибок не обнаружено.")
+                    self.ui.statusTextEdit.append("No errors found.")
                     return data
                 elif syndrome != 0 and calculated_overall_parity != overall_parity:
-                    print(f"Обнаружена и исправлена одиночная ошибка в позиции {syndrome}.")
+                    self.ui.statusTextEdit.append("Single error detected and fixed")
                     error_pos = syndrome - 1
                     corrected_bits = list(data_bits)
                     corrected_bits[error_pos] = '1' if corrected_bits[error_pos] == '0' else '0'
@@ -356,7 +373,7 @@ class Widget(QWidget):
                     corrected_data = bytes(int(corrected_bits[i:i+8], 2) for i in range(0, len(corrected_bits), 8))
                     return corrected_data
                 else:
-                    print("Обнаружена двойная ошибка или ошибка в контрольном бите. Исправление невозможно.")
+                    self.ui.statusTextEdit.append("A double error was detected. Correction is not possible.")
                     return data
 
 
