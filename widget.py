@@ -7,8 +7,7 @@ from PySide6.QtWidgets import QApplication, QWidget
 from PySide6.QtCore import Slot
 from ui_form import Ui_Widget
 from text_edit_logger import QTextEditLogger
-from PyQt5.QtGui import QFont
-from PyQt5.QtGui import QFont
+
 import logging
 
 from typing import List
@@ -22,7 +21,7 @@ class Widget(QWidget):
         self.log_text_edit = QTextEditLogger(self.ui.statusTextEdit)
         self.log_text_edit.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
         logger = logging.getLogger()
-        logger.addHandler(self.log_text_edit)
+        #logger.addHandler(self.log_text_edit)
         logger.setLevel(logging.INFO)
 
         available_port_pairs = self.get_available_port_pairs()
@@ -65,7 +64,7 @@ class Widget(QWidget):
                 packet1 = Packet(flag, destination_address, source_address, chunk, "0")
                 packets.append(packet1)
             else:
-                            # Разбиваем длинный кусок на несколько пакетов длиной 15 байт
+                            # Разбиваем длинный кусок на несколько пакетов длиной 14 байт
                 for j in range(0, len(chunk), 14):
                     sub_chunk = chunk[j:j + 14]
                     packet1 = Packet(flag, destination_address, source_address, sub_chunk, "0")
@@ -95,6 +94,33 @@ class Widget(QWidget):
                 char_list = [chr(int(b)) for b in str3.split(',')]
                 result_string = ''.join(char_list)
 
+                #fcs = self.create_hamming_fcs(packet1.data_after_stuffing)
+                #self.check_and_correct_hamming(packet1.data_after_stuffing, fcs)
+                packet_data = packet1.data_after_stuffing
+                print(f"Оригинальные данные: {packet_data}")
+
+                fcs = self.create_fcs(packet_data)
+                print(f"Оригинальный FCS: {fcs}")
+
+                print("\nСлучай 1: Без ошибок")
+                result = self.check_and_correct_hamming(packet_data, fcs)
+                print(f"Результат: {result}")
+                print(f"Совпадают с оригиналом: {result == packet_data}")
+
+                print("\nСлучай 2: Одиночная ошибка")
+                single_error_data = self.simulate_errors(packet_data, [15])  # Ошибка в 15-м бите
+                corrected_data = self.check_and_correct_hamming(single_error_data, fcs)
+                if corrected_data:
+                    print(f"Исправленные данные: {corrected_data}")
+                    print(f"Совпадают с оригиналом: {corrected_data == packet_data}")
+
+                print("\nСлучай 3: Двойная ошибка")
+                double_error_data = self.simulate_errors(packet_data, [15, 30])  # Ошибки в 15-м и 30-м битах
+                result = self.check_and_correct_hamming(double_error_data, fcs)
+                if result:
+                    print(f"Результат: {result}")
+                print(f"FCS (строка): {fcs}")
+
                 data_to_send = f"{packet1.flag}{packet1.destination_address}{packet1.source_address}~{result_string}~{packet1.fcs}".encode("latin-1")
 
                 for byte in data_to_send:
@@ -121,7 +147,12 @@ class Widget(QWidget):
         real_port = f"/tmp/ttyV{ttyv_number}"
             # Если это нечетный COM-порт, увеличиваем номер ttyV на 1
         return real_port
-
+    def simulate_errors(self, data, error_positions):
+        data_bits = list(''.join(format(byte, '08b') for byte in data))
+        for pos in error_positions:
+            if pos <= len(data_bits):
+                data_bits[pos-1] = '1' if data_bits[pos-1] == '0' else '0'
+        return bytes(int(''.join(data_bits[i:i+8]), 2) for i in range(0, len(data_bits), 8))
     def perform_unstuffing(self, data):
                 # Преобразуем байты в строку битов
         bit_string = ''.join(format(byte, '08b') for byte in data)
@@ -259,8 +290,68 @@ class Widget(QWidget):
                     self.ui.statusTextEdit.append(f"Error processing packet: {str(e)}")
 
             return
+    def calculate_fcs_size(self, data_size):
+                r = 0
+                while 2**r < data_size + r + 1:
+                    r += 1
+                return r + 1  # Добавляем еще один бит для общей четности
 
+    def create_fcs(self, data):
+                self.data_size = len(data) * 8
+                self.fcs_size = self.calculate_fcs_size(self.data_size)
 
+                data_bits = ''.join(format(byte, '08b') for byte in data)
+                fcs = ['0'] * self.fcs_size
+
+                overall_parity = 0
+                for i in range(self.fcs_size - 1):
+                    parity = 0
+                    for j in range(self.data_size):
+                        if (j + 1) & (1 << i):
+                            parity ^= int(data_bits[j])
+                    fcs[i] = str(parity)
+                    overall_parity ^= parity
+
+                for bit in data_bits:
+                    overall_parity ^= int(bit)
+
+                fcs[-1] = str(overall_parity)
+
+                return ''.join(fcs)
+
+    def check_and_correct_hamming(self, data, fcs):
+                data_bits = ''.join(format(byte, '08b') for byte in data)
+                syndrome = 0
+
+                overall_parity = int(fcs[-1])
+                calculated_overall_parity = 0
+
+                for i in range(self.fcs_size - 1):
+                    parity = 0
+                    for j in range(self.data_size):
+                        if (j + 1) & (1 << i):
+                            parity ^= int(data_bits[j])
+                    if parity != int(fcs[i]):
+                        syndrome |= (1 << i)
+                    calculated_overall_parity ^= parity
+
+                for bit in data_bits:
+                    calculated_overall_parity ^= int(bit)
+
+                if syndrome == 0 and calculated_overall_parity == overall_parity:
+                    print("Ошибок не обнаружено.")
+                    return data
+                elif syndrome != 0 and calculated_overall_parity != overall_parity:
+                    print(f"Обнаружена и исправлена одиночная ошибка в позиции {syndrome}.")
+                    error_pos = syndrome - 1
+                    corrected_bits = list(data_bits)
+                    corrected_bits[error_pos] = '1' if corrected_bits[error_pos] == '0' else '0'
+                    corrected_bits = ''.join(corrected_bits)
+                    corrected_data = bytes(int(corrected_bits[i:i+8], 2) for i in range(0, len(corrected_bits), 8))
+                    return corrected_data
+                else:
+                    print("Обнаружена двойная ошибка или ошибка в контрольном бите. Исправление невозможно.")
+                    return data
 
 
 if __name__ == "__main__":
