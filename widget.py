@@ -89,10 +89,11 @@ class Widget(QWidget):
             packets = self.create_packets(data_to_send, "00001110", "0000", com_port1)
             #sent_data_length = len(data_to_send)
             self.ui.inputTextEdit.clear()
+            self.ui.statusTextEdit.clear()
             for packet1 in packets:
                 packet_data = packet1.data_after_stuffing
                 fcs = self.create_fcs(packet_data)
-                self.ui.statusTextEdit.clear()
+
                 if self.ui.checkBox.isChecked():
                     packet_data = self.emulate_errors(packet_data)
 
@@ -151,11 +152,11 @@ class Widget(QWidget):
         if random_int <= 60:
             if len(data)>1:
                 data = self.simulate_errors(data, [15])
-                self.ui.statusTextEdit.append("One bit was changed")
+                self.ui.statusTextEdit.append(">>>>>>>>>>One bit was changed<<<<<<<<<<")
         elif 60 < random_int < 85:
             if len(data)>4:
                 data = self.simulate_errors(data, [15,30])
-                self.ui.statusTextEdit.append("Two bits were changed")
+                self.ui.statusTextEdit.append(">>>>>>>>>>Two bits were changed<<<<<<<<<<")
         return data
 
     def simulate_errors(self, data, error_positions):
