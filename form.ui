@@ -44,7 +44,7 @@
   <widget class="QLabel" name="label_2">
    <property name="geometry">
     <rect>
-     <x>320</x>
+     <x>270</x>
      <y>130</y>
      <width>161</width>
      <height>21</height>
@@ -62,7 +62,7 @@
   <widget class="QComboBox" name="comboBox_2">
    <property name="geometry">
     <rect>
-     <x>440</x>
+     <x>380</x>
      <y>130</y>
      <width>131</width>
      <height>23</height>
@@ -180,7 +180,7 @@
   <widget class="QLabel" name="label_6">
    <property name="geometry">
     <rect>
-     <x>640</x>
+     <x>520</x>
      <y>130</y>
      <width>161</width>
      <height>21</height>
@@ -198,7 +198,38 @@
   <widget class="QCheckBox" name="checkBox">
    <property name="geometry">
     <rect>
-     <x>770</x>
+     <x>640</x>
+     <y>130</y>
+     <width>21</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_7">
+   <property name="geometry">
+    <rect>
+     <x>670</x>
+     <y>130</y>
+     <width>161</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string>Check channel:</string>
+   </property>
+  </widget>
+  <widget class="QCheckBox" name="checkBox_2">
+   <property name="geometry">
+    <rect>
+     <x>790</x>
      <y>130</y>
      <width>21</width>
      <height>21</height>

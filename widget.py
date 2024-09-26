@@ -2,6 +2,7 @@ import sys
 import serial
 import glob
 import re
+import time
 from packet import Packet
 from PySide6.QtWidgets import QApplication, QWidget
 from PySide6.QtCore import Slot
@@ -97,31 +98,52 @@ class Widget(QWidget):
                 if self.ui.checkBox.isChecked():
                     packet_data = self.emulate_errors(packet_data)
 
-                """print(f"Оригинальные данные: {packet_data}")
-                print(f"Оригинальный FCS: {fcs}")
-
-                print("\nСлучай 1: Без ошибок")
-                result = self.check_and_correct_hamming(packet_data, fcs)
-                print(f"Результат: {result}")
-                print(f"Совпадают с оригиналом: {result == packet_data}")
-
-                print("\nСлучай 2: Одиночная ошибка")
-                single_error_data = self.simulate_errors(packet_data, [random.randint(1,len(packet_data))])  # Ошибка в 15-м бите
-                print(single_error_data)
-                corrected_data = self.check_and_correct_hamming(single_error_data, fcs)
-                if corrected_data:
-                    print(f"Исправленные данные: {corrected_data}")
-                    print(f"Совпадают с оригиналом: {corrected_data == packet_data}")"""
-
-
                 str3 = ','.join(str(b) for b in packet_data)
                 char_list = [chr(int(b)) for b in str3.split(',')]
                 result_string = ''.join(char_list)
 
                 print(f"sended {result_string}")
-                data_to_send = f"{packet1.flag}{packet1.destination_address}{packet1.source_address}~{result_string}~{fcs}".encode("latin-1")
+                header_to_send = f"{packet1.flag}{packet1.destination_address}{packet1.source_address}".encode("latin-1")
+                data_to_send = f"~{result_string}~".encode("latin-1")
+                fcs_to_send = f"{fcs}".encode("latin-1")
 
-                for byte in data_to_send:
+                for byte in header_to_send:
+                    ser1.write(bytes([byte]))
+
+                if self.ui.checkBox_2.isChecked():
+                    attempt = 0
+                    while self.check_channel_idle():
+                        self.ui.statusTextEdit.append("Канал занят. Ожидание...")
+                        time.sleep(1)
+
+                    for byte in  data_to_send:
+
+                        while attempt<16:
+
+                        # Обнаружение коллизии
+                            if self.check_collision(byte):
+                                attempt += 1
+
+                                self.ui.statusTextEdit.append(f"Коллизия обнаружена на байте {(format(byte, '08b'))}!")
+
+                                delay = self.calculate_random_delay(attempt)
+                                self.ui.statusTextEdit.append(f"Ожидание {delay} секунд перед повторной передачей...")
+
+                            # Окно коллизий
+                                self.ui.statusTextEdit.append("Ожидаем завершения окна коллизий")
+                                time.sleep(1)
+
+                                self.ui.statusTextEdit.append("Ожидание завершено")
+
+                            else:
+                                ser1.write(bytes([byte]))
+                                attempt = 0;
+                                break;
+                else:
+                    for byte in data_to_send:
+                        ser1.write(bytes([byte]))
+
+                for byte in fcs_to_send:
                     ser1.write(bytes([byte]))
 
             self.ui.outputTextEdit.clear()
@@ -235,8 +257,6 @@ class Widget(QWidget):
                 result+=' '
         return result
 
-
-
     def receive_data(self, ser2):
             received_packets = []
 
@@ -273,8 +293,6 @@ class Widget(QWidget):
                     return received_packets  # Неожиданный конец данных
 
                 try:
-
-
                     self.ui.statusTextEdit.append("Received packet:")
                     self.ui.statusTextEdit.append(f"Flag: {flag.decode()}")
                     self.ui.statusTextEdit.append(f"Destination: {dest_addr.decode()}")
@@ -295,8 +313,6 @@ class Widget(QWidget):
 
                     packet1 = Packet(flag.decode("latin-1"), dest_addr.decode("latin-1"), src_addr.decode("latin-1"), bytes(unstuffed_data), "0")
                     packet1.fcs = fcs.hex()
-
-
 
                     # Преобразуем байты обратно в текст
                     try:
@@ -377,6 +393,18 @@ class Widget(QWidget):
                     self.ui.statusTextEdit.append("A double error was detected. Correction is not possible.")
                     return data
 
+    def check_channel_idle(self):
+        return random.random() > 0.5
+
+    def check_collision(self,byte):
+        return random.random() < 0.3
+
+    def calculate_random_delay(self, attempt):
+        # Стандартная формула для расчета случайной задержки
+        k = min(attempt, 10)
+        r = random.randint(0, 2**k - 1)
+        delay = r * 512 / 10**6  # Задержка в секундах
+        return delay
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
