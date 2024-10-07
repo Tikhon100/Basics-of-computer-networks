@@ -23,8 +23,8 @@ class Packet:
 
     @destination_address.setter
     def destination_address(self, value):
-        if isinstance(value, bytes) and len(value) != 4:
-            raise ValueError("Поле destination_address должно состоять из 4 байт")
+        if isinstance(value, bytes) and len(value) != 10:
+            raise ValueError("Поле destination_address должно состоять из 10 байт")
         self._destination_address = value
 
     @property
@@ -78,4 +78,52 @@ class Packet:
     @property
     def data_after_stuffing(self):
         return self._data_after_stuffing
+
+
+class token:
+    def __init__(self, priority1, priority2, priority3, full_flag):
+        self._priority1 = priority1
+        self._priority2 = priority2
+        self._priority3 = priority3
+        self.full_flag = full_flag
+
+    @property
+    def priority1(self):
+        return self._priority1
+
+    @priority1.setter
+    def priority1(self, value):
+        if isinstance(value, bytes) and len(value) != 1:
+            raise ValueError("Поле priority1 должно состоять из 1 байта")
+        self._priority1 = value
+
+    @property
+    def priority2(self):
+        return self._priority2
+
+    @priority2.setter
+    def priority2(self, value):
+        if isinstance(value, bytes) and len(value) != 1:
+            raise ValueError("Поле priority2 должно состоять из 1 байта")
+        self._priority2 = value
+
+    @property
+    def priority3(self):
+        return self._priority3
+
+    @priority3.setter
+    def priority3(self, value):
+        if isinstance(value, bytes) and len(value) != 1:
+            raise ValueError("Поле priority3 должно состоять из 1 байта")
+        self._priority3 = value
+
+    @property
+    def full_flag(self):
+        return self.full_flag
+
+    @full_flag.setter
+    def full_flag(self, value):
+        if isinstance(value, bytes) and len(value) != 1:
+            raise ValueError("Поле full_flag должно состоять из 1 байта")
+        self._full_flag = value
 

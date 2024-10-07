@@ -6,75 +6,22 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>836</width>
-    <height>712</height>
+    <width>832</width>
+    <height>706</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Widget</string>
   </property>
-  <widget class="QComboBox" name="comboBox">
-   <property name="geometry">
-    <rect>
-     <x>130</x>
-     <y>130</y>
-     <width>131</width>
-     <height>23</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QLabel" name="label">
-   <property name="geometry">
-    <rect>
-     <x>20</x>
-     <y>130</y>
-     <width>161</width>
-     <height>21</height>
-    </rect>
-   </property>
-   <property name="font">
-    <font>
-     <pointsize>12</pointsize>
-    </font>
-   </property>
-   <property name="text">
-    <string>Choose ports:</string>
-   </property>
-  </widget>
-  <widget class="QLabel" name="label_2">
-   <property name="geometry">
-    <rect>
-     <x>320</x>
-     <y>130</y>
-     <width>161</width>
-     <height>21</height>
-    </rect>
-   </property>
-   <property name="font">
-    <font>
-     <pointsize>12</pointsize>
-    </font>
-   </property>
-   <property name="text">
-    <string>Choose speed:</string>
-   </property>
-  </widget>
-  <widget class="QComboBox" name="comboBox_2">
-   <property name="geometry">
-    <rect>
-     <x>440</x>
-     <y>130</y>
-     <width>131</width>
-     <height>23</height>
-    </rect>
-   </property>
-  </widget>
+  <property name="windowIcon">
+   <iconset theme="dialog-warning"/>
+  </property>
   <widget class="QTextEdit" name="inputTextEdit">
    <property name="geometry">
     <rect>
      <x>20</x>
      <y>50</y>
-     <width>791</width>
+     <width>701</width>
      <height>70</height>
     </rect>
    </property>
@@ -102,8 +49,8 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>250</y>
-     <width>791</width>
+     <y>280</y>
+     <width>701</width>
      <height>111</height>
     </rect>
    </property>
@@ -117,7 +64,7 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>210</y>
+     <y>240</y>
      <width>221</width>
      <height>31</height>
     </rect>
@@ -135,7 +82,7 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>170</y>
+     <y>200</y>
      <width>791</width>
      <height>23</height>
     </rect>
@@ -148,7 +95,7 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>380</y>
+     <y>410</y>
      <width>221</width>
      <height>31</height>
     </rect>
@@ -166,9 +113,9 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>420</y>
-     <width>791</width>
-     <height>261</height>
+     <y>450</y>
+     <width>701</width>
+     <height>231</height>
     </rect>
    </property>
    <property name="font">
@@ -180,7 +127,7 @@
   <widget class="QLabel" name="label_6">
    <property name="geometry">
     <rect>
-     <x>640</x>
+     <x>20</x>
      <y>130</y>
      <width>161</width>
      <height>21</height>
@@ -198,7 +145,7 @@
   <widget class="QCheckBox" name="checkBox">
    <property name="geometry">
     <rect>
-     <x>770</x>
+     <x>170</x>
      <y>130</y>
      <width>21</width>
      <height>21</height>
@@ -206,6 +153,166 @@
    </property>
    <property name="text">
     <string/>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_7">
+   <property name="geometry">
+    <rect>
+     <x>300</x>
+     <y>130</y>
+     <width>431</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string>Used ports: </string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_8">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>160</y>
+     <width>161</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string>Destination station:</string>
+   </property>
+  </widget>
+  <widget class="QComboBox" name="comboBox">
+   <property name="geometry">
+    <rect>
+     <x>170</x>
+     <y>160</y>
+     <width>81</width>
+     <height>23</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QCheckBox" name="checkBox_2">
+   <property name="geometry">
+    <rect>
+     <x>410</x>
+     <y>160</y>
+     <width>21</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_9">
+   <property name="geometry">
+    <rect>
+     <x>300</x>
+     <y>160</y>
+     <width>101</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string>HIgh priority:</string>
+   </property>
+  </widget>
+  <widget class="QCheckBox" name="checkBox_3">
+   <property name="geometry">
+    <rect>
+     <x>550</x>
+     <y>160</y>
+     <width>21</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_10">
+   <property name="geometry">
+    <rect>
+     <x>470</x>
+     <y>160</y>
+     <width>71</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string>Monitor:</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pushButton_2">
+   <property name="geometry">
+    <rect>
+     <x>620</x>
+     <y>160</y>
+     <width>191</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Generate token</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pushButton_3">
+   <property name="geometry">
+    <rect>
+     <x>730</x>
+     <y>280</y>
+     <width>81</width>
+     <height>111</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Clear</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pushButton_4">
+   <property name="geometry">
+    <rect>
+     <x>730</x>
+     <y>450</y>
+     <width>81</width>
+     <height>231</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Clear</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pushButton_5">
+   <property name="geometry">
+    <rect>
+     <x>730</x>
+     <y>50</y>
+     <width>81</width>
+     <height>71</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Clear</string>
    </property>
   </widget>
  </widget>
@@ -227,9 +334,94 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>pushButton_3</sender>
+   <signal>clicked()</signal>
+   <receiver>Widget</receiver>
+   <slot>clearOutput()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>787</x>
+     <y>358</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>730</x>
+     <y>402</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButton_5</sender>
+   <signal>clicked()</signal>
+   <receiver>Widget</receiver>
+   <slot>clearInput()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>783</x>
+     <y>100</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>755</x>
+     <y>131</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButton_4</sender>
+   <signal>clicked()</signal>
+   <receiver>Widget</receiver>
+   <slot>clearStatus()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>766</x>
+     <y>482</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>796</x>
+     <y>414</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButton_2</sender>
+   <signal>clicked()</signal>
+   <receiver>Widget</receiver>
+   <slot>newToken()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>748</x>
+     <y>171</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>591</x>
+     <y>158</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBox_2</sender>
+   <signal>clicked()</signal>
+   <receiver>Widget</receiver>
+   <slot>highPriority()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>417</x>
+     <y>165</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>455</x>
+     <y>167</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>send_button_click()</slot>
   <slot>update_ports()</slot>
+  <slot>clearInput()</slot>
+  <slot>clearOutput()</slot>
+  <slot>clearStatus()</slot>
+  <slot>newToken()</slot>
+  <slot>highPriority()</slot>
  </slots>
 </ui>
